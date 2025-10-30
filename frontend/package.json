@@ -1,0 +1,31 @@
+{
+    "name": "tiny-translator-frontend",
+    "version": "1.0.0",
+    "description": "Tiny Translator - Desktop translation tool frontend",
+    "main": "dist/main.js",
+    "scripts": {
+        "start": "npm run build && electron .",
+        "build": "tsc",
+        "watch": "tsc --watch",
+        "dev": "npm run build && electron . --dev",
+        "clean": "rimraf dist"
+    },
+    "keywords": [
+        "electron",
+        "typescript",
+        "translation",
+        "clipboard"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^22.0.0",
+        "electron": "^32.0.0",
+        "rimraf": "^6.0.0",
+        "typescript": "^5.6.0"
+    },
+    "dependencies": {
+        "axios": "^1.7.0",
+        "electron-store": "^10.0.0"
+    }
+}

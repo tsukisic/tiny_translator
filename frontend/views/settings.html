@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #fafafa;
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #ffffff;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 24px 32px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .content {
+            padding: 32px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .section-desc {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 13px;
+            transition: all 0.2s;
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #ffffff;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #6b7280;
+            background: #fafafa;
+        }
+
+        .input::placeholder {
+            color: #9ca3af;
+        }
+
+        .select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 13px;
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .select:focus {
+            outline: none;
+            border-color: #6b7280;
+            background: #fafafa;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        .help-text a {
+            color: #374151;
+            text-decoration: underline;
+        }
+
+        .btn {
+            padding: 9px 18px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #374151;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #1f2937;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.99);
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 12px 14px;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #0c4a6e;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 12px 14px;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>设置</h1>
+            <p>配置翻译服务参数</p>
+        </div>
+
+        <div class="content">
+            <div class="success-message" id="successMessage">
+                ✓ 设置已保存
+            </div>
+
+            <!-- API Configuration -->
+            <div class="section">
+                <div class="section-title">API 配置</div>
+                <div class="section-desc">
+                    配置 OpenRouter API 密钥以启用翻译功能
+                </div>
+                
+                <div class="form-group">
+                    <label class="label">API Key</label>
+                    <input 
+                        type="password" 
+                        class="input" 
+                        id="apiKey"
+                        placeholder="sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxx"
+                    >
+                    <div class="help-text">
+                        在 <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a> 获取您的 API 密钥
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">站点 URL (可选)</label>
+                    <input 
+                        type="text" 
+                        class="input" 
+                        id="siteUrl"
+                        placeholder="https://your-site.com"
+                    >
+                    <div class="help-text">
+                        用于在 OpenRouter 排行榜中标识您的应用
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">站点名称 (可选)</label>
+                    <input 
+                        type="text" 
+                        class="input" 
+                        id="siteName"
+                        placeholder="Your App Name"
+                    >
+                </div>
+            </div>
+
+            <!-- Model Selection -->
+            <div class="section">
+                <div class="section-title">模型设置</div>
+                <div class="section-desc">
+                    选择用于翻译的 AI 模型
+                </div>
+                
+                <div class="form-group">
+                    <label class="label">模型</label>
+                    <select class="select" id="modelName">
+                        <option value="openai/gpt-4o-mini">GPT-4o Mini (推荐) - 快速且便宜</option>
+                        <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo - 经济实惠</option>
+                        <option value="openai/gpt-4o">GPT-4o - 高质量</option>
+                        <option value="anthropic/claude-3-haiku">Claude 3 Haiku - 快速</option>
+                        <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet - 高质量</option>
+                        <option value="google/gemini-flash-1.5">Gemini Flash 1.5 - 超快</option>
+                        <option value="google/gemini-pro-1.5">Gemini Pro 1.5 - 均衡</option>
+                    </select>
+                    <div class="help-text">
+                        不同模型在速度、质量和价格上有所差异
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    💡 推荐使用 GPT-4o Mini,性价比最高,翻译速度快,质量好
+                </div>
+            </div>
+
+            <!-- Translation Settings -->
+            <div class="section">
+                <div class="section-title">翻译设置</div>
+                
+                <div class="form-group">
+                    <label class="label">默认目标语言</label>
+                    <select class="select" id="targetLang">
+                        <option value="zh-CN">简体中文</option>
+                        <option value="zh-TW">繁體中文</option>
+                        <option value="en">English</option>
+                        <option value="ja">日本語</option>
+                        <option value="ko">한국어</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <button class="btn btn-primary" id="saveBtn">保存设置</button>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const fs = require('fs');
+        const path = require('path');
+
+        const configPath = path.join(__dirname, '../../backend/.env');
+
+        // Load current settings
+        function loadSettings() {
+            try {
+                if (fs.existsSync(configPath)) {
+                    const content = fs.readFileSync(configPath, 'utf-8');
+                    const lines = content.split('\n');
+                    
+                    lines.forEach(line => {
+                        const [key, value] = line.split('=');
+                        if (key && value) {
+                            const trimmedKey = key.trim();
+                            const trimmedValue = value.trim().replace(/^["']|["']$/g, '');
+                            
+                            if (trimmedKey === 'OPENROUTER_API_KEY') {
+                                document.getElementById('apiKey').value = trimmedValue;
+                            } else if (trimmedKey === 'OPENROUTER_SITE_URL') {
+                                document.getElementById('siteUrl').value = trimmedValue;
+                            } else if (trimmedKey === 'OPENROUTER_SITE_NAME') {
+                                document.getElementById('siteName').value = trimmedValue;
+                            } else if (trimmedKey === 'MODEL_NAME') {
+                                document.getElementById('modelName').value = trimmedValue;
+                            } else if (trimmedKey === 'DEFAULT_TARGET_LANG') {
+                                document.getElementById('targetLang').value = trimmedValue;
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load settings:', error);
+            }
+        }
+
+        // Save settings
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const siteUrl = document.getElementById('siteUrl').value.trim() || 'http://localhost:3000';
+            const siteName = document.getElementById('siteName').value.trim() || 'Tiny Translator';
+            const modelName = document.getElementById('modelName').value;
+            const targetLang = document.getElementById('targetLang').value;
+
+            if (!apiKey) {
+                alert('请输入 API Key');
+                return;
+            }
+
+            const envContent = `# OpenRouter API Configuration
+OPENROUTER_API_KEY=${apiKey}
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_SITE_URL=${siteUrl}
+OPENROUTER_SITE_NAME=${siteName}
+
+# Model Configuration
+MODEL_PROVIDER=openrouter
+MODEL_NAME=${modelName}
+
+# Translation Settings
+DEFAULT_SOURCE_LANG=auto
+DEFAULT_TARGET_LANG=${targetLang}
+`;
+
+            try {
+                fs.writeFileSync(configPath, envContent, 'utf-8');
+                
+                // Show success message
+                const successMsg = document.getElementById('successMessage');
+                successMsg.classList.add('show');
+                setTimeout(() => {
+                    successMsg.classList.remove('show');
+                }, 3000);
+
+                // Notify user to restart
+                setTimeout(() => {
+                    if (confirm('设置已保存!需要重启应用以应用更改。是否现在重启?')) {
+                        ipcRenderer.send('restart-app');
+                    }
+                }, 500);
+            } catch (error) {
+                alert('保存设置失败: ' + error.message);
+            }
+        });
+
+        // Load settings on page load
+        loadSettings();
+    </script>
+</body>
+</html>

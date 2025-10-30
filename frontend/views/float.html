@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiny Translator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: transparent;
+            overflow: hidden;
+            -webkit-app-region: drag;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .float-container {
+            width: 650px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #fafafa;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            -webkit-app-region: drag;
+            height: 45px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #374151;
+        }
+
+        .title {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 4px;
+            -webkit-app-region: no-drag;
+        }
+
+        .icon-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            background: transparent;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            font-size: 14px;
+        }
+
+        .icon-btn:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+
+        .icon-btn.pinned {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 16px;
+        }
+
+        .section-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            justify-content: space-between;
+        }
+
+        .lang-select {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #ffffff;
+            cursor: pointer;
+            color: #374151;
+            min-width: 120px;
+            -webkit-app-region: no-drag;
+        }
+
+        .lang-select:focus {
+            outline: none;
+            border-color: #9ca3af;
+        }
+
+        .mode-select {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #ffffff;
+            cursor: pointer;
+            color: #374151;
+            min-width: 100px;
+            -webkit-app-region: no-drag;
+        }
+
+        .mode-select:focus {
+            outline: none;
+            border-color: #9ca3af;
+        }
+
+        .text-input {
+            background: #fafafa;
+            border: 1px solid #e5e7eb;
+            border-radius: 5px;
+            padding: 10px 12px;
+            width: 100%;
+            min-height: 140px;
+            max-height: 140px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #1f2937;
+            font-family: inherit;
+            resize: none;
+            transition: all 0.15s;
+            -webkit-app-region: no-drag;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #9ca3af;
+            background: #ffffff;
+        }
+
+        .text-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .text-input::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .text-input::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+
+        .translation-result {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 5px;
+            padding: 10px 12px;
+            min-height: 140px;
+            max-height: 140px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #1f2937;
+            position: relative;
+            user-select: text;
+            -webkit-user-select: text;
+            cursor: text;
+            -webkit-app-region: no-drag;
+        }
+
+        .translation-result::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .translation-result::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+
+        .translation-result.empty {
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .loading-spinner.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #f3f4f6;
+            border-top-color: #6b7280;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            -webkit-app-region: no-drag;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 9px 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: #374151;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1f2937;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="float-container">
+        <div class="header">
+            <div class="header-left">
+                <span class="title">Tiny Translator</span>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" id="settingsBtn" title="设置">⚙</button>
+                <button class="icon-btn pinned" id="pinBtn" title="取消置顶" data-pinned="true">
+                    <span class="pin-unpinned" style="display: none;">📍</span>
+                    <span class="pin-pinned">📌</span>
+                </button>
+                <button class="icon-btn" id="closeBtn" title="关闭">✕</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <div class="section-label">
+                    <span>原文</span>
+                    <select class="lang-select" id="translationMode">
+                        <option value="translate">💬 智能翻译</option>
+                        <option value="dictionary">📖 词典模式</option>
+                    </select>
+                </div>
+                <textarea 
+                    class="text-input" 
+                    id="textInput" 
+                    placeholder="按 Ctrl+F10 捕获选中文本,或直接在此输入..."
+                ></textarea>
+            </div>
+
+            <div class="section">
+                <div class="section-label">
+                    <span>译文</span>
+                    <div style="display: flex; gap: 6px; -webkit-app-region: no-drag;">
+                        <select class="lang-select" id="targetLang">
+                            <option value="auto">🔄 智能 (中⇄英)</option>
+                            <option value="zh-CN">简体中文</option>
+                            <option value="zh-TW">繁體中文</option>
+                            <option value="en">English</option>
+                            <option value="ja">日本語</option>
+                            <option value="ko">한국어</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch</option>
+                            <option value="es">Español</option>
+                            <option value="ru">Русский</option>
+                            <option value="it">Italiano</option>
+                            <option value="pt">Português</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="translation-result empty" id="translationResult">
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner"></div>
+                        <div class="loading-text">翻译中...</div>
+                    </div>
+                    <div id="translationText">点击下方"翻译"按钮开始翻译</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" id="translateBtn">
+                    翻译
+                </button>
+                <button class="btn btn-secondary" id="copyBtn">
+                    复制原文
+                </button>
+                <button class="btn btn-secondary" id="copyTransBtn">
+                    复制译文
+                </button>
+                <button class="btn btn-secondary" id="clearBtn">
+                    清空
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const { ipcRenderer } = require('electron');
+            
+            function initializeWindow() {
+                const textInput = document.getElementById('textInput');
+                const translationText = document.getElementById('translationText');
+                const loadingSpinner = document.getElementById('loadingSpinner');
+                const translationResult = document.getElementById('translationResult');
+                const pinBtn = document.getElementById('pinBtn');
+                const targetLangSelect = document.getElementById('targetLang');
+                const translationModeSelect = document.getElementById('translationMode');
+                
+                if (!textInput || !translationText || !loadingSpinner || !pinBtn || !targetLangSelect || !translationModeSelect) {
+                    setTimeout(initializeWindow, 10);
+                    return;
+                }
+
+                document.body.classList.remove('loading');
+                document.body.classList.add('loaded');
+
+                let currentTranslation = '';
+
+                // Load last selected language and mode (default to 'auto' and 'translate')
+                const savedLang = localStorage.getItem('targetLang') || 'auto';
+                const savedMode = localStorage.getItem('translationMode') || 'translate';
+                targetLangSelect.value = savedLang;
+                translationModeSelect.value = savedMode;
+
+                // Save language selection
+                targetLangSelect.addEventListener('change', () => {
+                    localStorage.setItem('targetLang', targetLangSelect.value);
+                });
+                
+                // Save mode selection
+                translationModeSelect.addEventListener('change', () => {
+                    localStorage.setItem('translationMode', translationModeSelect.value);
+                });
+
+                ipcRenderer.on('show-text', (event, text) => {
+                    textInput.value = text;
+                    textInput.focus();
+                });
+
+                const translateBtn = document.getElementById('translateBtn');
+                if (translateBtn) {
+                    translateBtn.addEventListener('click', async () => {
+                        const text = textInput.value.trim();
+                        if (!text) {
+                            alert('请输入要翻译的文本');
+                            return;
+                        }
+                        
+                        // Get selected target language and mode
+                        const targetLang = targetLangSelect.value;
+                        const mode = translationModeSelect.value;
+                        
+                        translationResult.classList.remove('empty');
+                        loadingSpinner.classList.add('active');
+                        translationText.style.display = 'none';
+                        translateBtn.disabled = true;
+                        translateBtn.style.opacity = '0.5';
+                        
+                        try {
+                            const result = await ipcRenderer.invoke('translate', text, targetLang, mode);
+                            
+                            if (result.success && result.translated_text) {
+                                currentTranslation = result.translated_text;
+                                translationText.textContent = result.translated_text;
+                                loadingSpinner.classList.remove('active');
+                                translationText.style.display = 'block';
+                            } else {
+                                throw new Error(result.error || 'Translation failed');
+                            }
+                        } catch (error) {
+                            console.error('Translation error:', error);
+                            loadingSpinner.classList.remove('active');
+                            translationText.style.display = 'block';
+                            translationText.textContent = '翻译失败: ' + error.message;
+                            translationResult.classList.add('empty');
+                        } finally {
+                            translateBtn.disabled = false;
+                            translateBtn.style.opacity = '1';
+                        }
+                    });
+                }
+
+                const copyBtn = document.getElementById('copyBtn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', () => {
+                        const text = textInput.value;
+                        if (text) {
+                            ipcRenderer.invoke('copy-to-clipboard', text);
+                        }
+                    });
+                }
+
+                const copyTransBtn = document.getElementById('copyTransBtn');
+                if (copyTransBtn) {
+                    copyTransBtn.addEventListener('click', () => {
+                        if (currentTranslation) {
+                            ipcRenderer.invoke('copy-to-clipboard', currentTranslation);
+                        } else {
+                            alert('还没有译文');
+                        }
+                    });
+                }
+
+                const clearBtn = document.getElementById('clearBtn');
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', () => {
+                        textInput.value = '';
+                        translationText.textContent = '点击下方"翻译"按钮开始翻译';
+                        translationResult.classList.add('empty');
+                        currentTranslation = '';
+                        loadingSpinner.classList.remove('active');
+                        translationText.style.display = 'block';
+                    });
+                }
+
+                const settingsBtn = document.getElementById('settingsBtn');
+                if (settingsBtn) {
+                    settingsBtn.addEventListener('click', () => {
+                        ipcRenderer.send('open-settings');
+                    });
+                }
+
+                if (pinBtn) {
+                    pinBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const currentlyPinned = pinBtn.classList.contains('pinned');
+                        const newPinnedState = !currentlyPinned;
+                        
+                        const unpinnedIcon = pinBtn.querySelector('.pin-unpinned');
+                        const pinnedIcon = pinBtn.querySelector('.pin-pinned');
+                        
+                        if (newPinnedState) {
+                            unpinnedIcon.style.display = 'none';
+                            pinnedIcon.style.display = 'inline-block';
+                            pinBtn.classList.add('pinned');
+                            pinBtn.title = '取消置顶';
+                        } else {
+                            unpinnedIcon.style.display = 'inline-block';
+                            pinnedIcon.style.display = 'none';
+                            pinBtn.classList.remove('pinned');
+                            pinBtn.title = '置顶';
+                        }
+                        
+                        ipcRenderer.send('toggle-pin');
+                    });
+                }
+
+                ipcRenderer.on('pin-status-changed', (event, isPinned) => {
+                    const unpinnedIcon = pinBtn.querySelector('.pin-unpinned');
+                    const pinnedIcon = pinBtn.querySelector('.pin-pinned');
+                    
+                    if (unpinnedIcon && pinnedIcon) {
+                        if (isPinned) {
+                            unpinnedIcon.style.display = 'none';
+                            pinnedIcon.style.display = 'inline-block';
+                            pinBtn.classList.add('pinned');
+                            pinBtn.title = '取消置顶';
+                        } else {
+                            unpinnedIcon.style.display = 'inline-block';
+                            pinnedIcon.style.display = 'none';
+                            pinBtn.classList.remove('pinned');
+                            pinBtn.title = '置顶';
+                        }
+                    }
+                });
+
+                const closeBtn = document.getElementById('closeBtn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        ipcRenderer.send('close-float');
+                    });
+                }
+
+                ipcRenderer.send('window-ready');
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeWindow);
+            } else {
+                initializeWindow();
+            }
+        })();
+    </script>
+</body>
+</html>
